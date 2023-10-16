@@ -63,6 +63,11 @@ userController.get("/login", async (req, res) => {
       })
     }
   });
+
+  userController.get("/logout", async (req, res) => {
+    res.clearCookie('auth')
+    res.redirect('/')
+  });
   
 
 module.exports = userController;
