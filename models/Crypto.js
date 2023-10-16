@@ -8,12 +8,6 @@ const cryptoSchema = new Schema({
   paymentMethod: {
     type: String,
     required: true,
-    validate: {
-      validator : function (value){
-        return /crypto|wallet|credit card|debit card|paypal/i.test(value)
-      },
-      message : 'Included payment methods are crypto-wallet, credit-card, debit-card or paypal'       
-    },
   },
   buys: [
     {
