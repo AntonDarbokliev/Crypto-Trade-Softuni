@@ -1,6 +1,7 @@
 const { isAuthorized } = require("../middlewares/authMiddleware.js");
 const cryptoService = require("../services/cryptoService.js");
-const { errorHelper } = require('../utils/errorHelpers.js')
+const { errorHelper } = require('../utils/errorHelpers.js');
+const isOwner = require("../utils/validationHelper.js");
 
 const cryptoController = require("express").Router();
 
@@ -95,16 +96,26 @@ cryptoController.post("/create",isAuthorized, async (req, res) => {
   }
   })
 
+
+
   cryptoController.get("/:id/edit",isAuthorized,async (req, res) => {
-    const id = req.params.id;
-    const crypto = await cryptoService.getById(id)
     try {
+      const userId = req.user.id;
+      const cryptoId = req.params.id
+      const crypto = await cryptoService.getById(cryptoId)
+
+      isOwner(crypto.owner,userId)
+      
+      // if(!isOwner(crypto.owner,userId)){
+      //     throw new Error('You are not the owner of this coin')
+      // }
      
       res.render("edit", {
         title: "Edit",
         crypto
       });
     } catch (err) {
+      console.log(err);
       const errors = errorHelper(err)
       res.render("edit", {
         title: "Crypto Edit",
@@ -114,9 +125,12 @@ cryptoController.post("/create",isAuthorized, async (req, res) => {
   });
   
   cryptoController.post("/:id/edit",isAuthorized, async (req, res) => {
-    const id = req.params.id;
     const cryptoData = req.body
-    const crypto = await cryptoService.getById(id)
+    const userId = req.user.id;
+    const cryptoId = req.params.id
+    const crypto = await cryptoService.getById(cryptoId)
+
+    isOwner(crypto.owner,userId)
 
     try {
       await cryptoService.edit(id,cryptoData)
@@ -132,10 +146,14 @@ cryptoController.post("/create",isAuthorized, async (req, res) => {
   });
 
   cryptoController.get('/:id/delete',isAuthorized, async (req,res) => {
-    const id = req.params.id
-    const crypto = await cryptoService.getById(id)
-  try{
-    await cryptoService.del(id)
+    const userId = req.user.id;
+    const cryptoId = req.params.id
+    const crypto = await cryptoService.getById(cryptoId)
+
+    
+    try{
+    isOwner(crypto.owner,userId)
+    await cryptoService.del(cryptoId)
     res.redirect('/crypto/catalog')
   }catch(err){
     const errors = errorHelper(err)

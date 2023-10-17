@@ -39,6 +39,10 @@ async function buy(cryptoId,userId){
   return Crypto.findByIdAndUpdate(cryptoId,{$push : {buys : userId}})    // CHANGE FUNCTION NAME AND PROPERTIES ACCORDING TO THE TASK
 }
 
+async function getLastThree(){
+    return Crypto.find().sort({_id : -1}).limit(3).lean()
+}
+
 module.exports = {
   create,
   getAll,
@@ -47,4 +51,5 @@ module.exports = {
   edit,
   del,
   buy,
+  getLastThree
 };
